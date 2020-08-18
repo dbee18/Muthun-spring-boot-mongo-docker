@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: ReplicationController
 metadata:
   labels:
     name: springboot
@@ -12,13 +12,13 @@ spec:
         name: springboot
     spec:
       containers:
-      - image: anildbee1/spring-boot-mongo
+      - image: dockerhandson/spring-boot-mongo:latest
         name: springboot
         ports:
         - name: springboot
-          containerPort: 8080      
+          containerPort: 8080
 ---
-# Node Port Service
+# Load Balancer Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -26,12 +26,24 @@ metadata:
     name: springboot
   name: springboot
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 8080
   selector:
     name: springboot
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebspvc-mango
+spec:
+  storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
 ---
 # Mongo host path rc
 apiVersion: v1
@@ -47,6 +59,10 @@ spec:
       labels:
         name: mongo
     spec:
+      volumes:
+      - name: ebspvc
+        persistentVolumeClaim:
+          claimName: ebspvc-mango
       containers:
       - image: mongo
         name: mongo
@@ -55,12 +71,8 @@ spec:
           containerPort: 27017
           hostPort: 27017
         volumeMounts:
-        - name: mongo-persistent-storage
+        - name: ebspvc
           mountPath: /data/db
-      volumes:
-      - name: mongo-persistent-storage
-        hostPath:
-         path: /tmp/dbbackup
 ---
 # Mongo Node Port RC
 apiVersion: v1
@@ -76,5 +88,3 @@ spec:
       targetPort: 27017
   selector:
     name: mongo
-
-# By anil s.rawat
