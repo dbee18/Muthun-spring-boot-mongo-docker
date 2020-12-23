@@ -12,7 +12,7 @@ spec:
         name: springboot
     spec:
       containers:
-      - image: anildbee1/spring-boot-mongo
+      - image: anildbee1/muthun-spring-boot-mongo-docker1
         name: springboot
         ports:
         - name: springboot
