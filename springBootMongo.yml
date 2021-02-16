@@ -32,6 +32,7 @@ spec:
       targetPort: 8080
   selector:
     name: springboot
+    app: springboot
 ---
 # Mongo host path rc
 apiVersion: v1
@@ -76,3 +77,4 @@ spec:
       targetPort: 27017
   selector:
     name: mongo
+    app: mongo
